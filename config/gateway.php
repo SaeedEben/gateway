@@ -6,125 +6,125 @@ return [
     // Timezone for insert dates in database
     // If you want Gateway not set timezone, just leave it empty
     //--------------------------------
-    'timezone' => 'Asia/Tehran',
+    'timezone'     => 'Asia/Tehran',
 
     //--------------------------------
     // Zarinpal gateway
     //--------------------------------
-    'zarinpal' => [
-        'merchant-id'  => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-        'type'         => 'zarin-gate',             // Types: [zarin-gate || normal]
-        'callback-url' => '/',
+    'zarinpal'     => [
+        'merchant_id'  => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+        'type'         => 'zarin_gate',             // Types: [zarin-gate || normal]
+        'callback_url' => '/',
         'server'       => 'germany',                // Servers: [germany || iran || test]
         'email'        => 'email@gmail.com',
-        'mobile'       => '09xxxxxxxxx',
+        'mobile'       => '09125556677',
         'description'  => 'description',
     ],
 
     //--------------------------------
     // Mellat gateway
     //--------------------------------
-    'mellat' => [
+    'mellat'       => [
         'username'     => '',
         'password'     => '',
-        'terminalId'   => 0000000,
-        'callback-url' => '/'
+        'terminal_id'  => 0000000,
+        'callback_url' => '/',
     ],
 
     //--------------------------------
     // Saman gateway
     //--------------------------------
-    'saman' => [
-        'merchant'     => '',
+    'saman'        => [
+        'merchant_id'  => '',
         'password'     => '',
-        'callback-url'   => '/',
+        'callback_url' => '/',
     ],
 
     //--------------------------------
     // PayIr gateway
     //--------------------------------
-    'payir'    => [
+    'payir'        => [
         'api'          => 'xxxxxxxxxxxxxxxxxxxx',
-        'callback-url' => '/'
+        'callback_url' => '/',
     ],
 
     //--------------------------------
     // IranKish gateway
     //--------------------------------
-    'irankish' => [
-        'merchantId' => 'xxxxxxxxxxxxxxxxxxxx',
-        'sha1key' => 'xxxxxxxxxxxxxxxxxxxx',
-        'callback-url' => '/'
+    'irankish'     => [
+        'merchant_id'  => 'xxxxxxxxxxxxxxxxxxxx',
+        'sha1key'      => 'xxxxxxxxxxxxxxxxxxxx',
+        'callback_url' => '/',
     ],
 
     //--------------------------------
     // Sadad gateway
     //--------------------------------
-    'sadad' => [
-        'merchant'      => '',
-        'transactionKey'=> '',
-        'terminalId'    => 000000000,
-        'callback-url'  => '/'
+    'sadad'        => [
+        'merchant_id'    => '',
+        'transactionKey' => '',
+        'terminal_id'    => 000000000,
+        'callback_url'   => '/',
     ],
 
     //--------------------------------
     // Parsian gateway
     //--------------------------------
-    'parsian' => [
+    'parsian'      => [
         'pin'          => 'xxxxxxxxxxxxxxxxxxxx',
-        'callback-url' => '/'
+        'callback_url' => '/',
     ],
     //--------------------------------
     // Pasargad gateway
     //--------------------------------
-    'pasargad' => [
-        'terminalId'    => 000000,
-        'merchantId'    => 000000,
-        'certificate-path'    => storage_path('gateway/pasargad/certificate.xml'),
-        'callback-url' => '/gateway/callback/pasargad'
+    'pasargad'     => [
+        'terminal_id'      => 000000,
+        'merchant_id'      => 000000,
+        'certificate_path' => storage_path('gateway/pasargad/certificate.xml'),
+        'callback_url'     => '/gateway/callback/pasargad',
     ],
 
     //--------------------------------
     // Asan Pardakht gateway
     //--------------------------------
     'asanpardakht' => [
-        'merchantId'     => '',
-        'merchantConfigId'     => '',
-        'username' => '',
-        'password' => '',
-        'key' => '',
-        'iv' => '',
-        'callback-url'   => '/',
+        'merchant_id'        => '',
+        'merchant_config_id' => 11,
+        'username'           => '',
+        'password'           => '',
+        'key'                => '',
+        'iv'                 => '',
+        'callback_url'       => '/',
     ],
 
-    //--------------------------------
-    // Paypal gateway
-    //--------------------------------
-    'paypal'   => [
-        // Default product name that appear on paypal payment items
-        'default_product_name' => 'My Product',
-        'default_shipment_price' => 0,
-        // set your paypal credential
-        'client_id' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'secret'    => 'xxxxxxxxxx_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'settings'  => [
-            'mode'                   => 'sandbox', //'sandbox' or 'live'
-            'http.ConnectionTimeOut' => 30,
-            'log.LogEnabled'         => true,
-            'log.FileName'           => storage_path() . '/logs/paypal.log',
-            /**
-             * Available option 'FINE', 'INFO', 'WARN' or 'ERROR'
-             *
-             * Logging is most verbose in the 'FINE' level and decreases as you
-             * proceed towards ERROR
-             */
-            'call_back_url'          => '/gateway/callback/paypal',
-            'log.LogLevel'           => 'FINE'
-
-        ]
-    ],
+    //    //--------------------------------
+    //    // Paypal gateway
+    //    //--------------------------------
+    //    'paypal'   => [
+    //        // Default product name that appear on paypal payment items
+    //        'default_product_name' => 'My Product',
+    //        'default_shipment_price' => 0,
+    //        // set your paypal credential
+    //        'client_id' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    //        'secret'    => 'xxxxxxxxxx_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    //        'settings'  => [
+    //            'mode'                   => 'sandbox', //'sandbox' or 'live'
+    //            'http.ConnectionTimeOut' => 30,
+    //            'log.LogEnabled'         => true,
+    //            'log.FileName'           => storage_path() . '/logs/paypal.log',
+    //            /**
+    //             * Available option 'FINE', 'INFO', 'WARN' or 'ERROR'
+    //             *
+    //             * Logging is most verbose in the 'FINE' level and decreases as you
+    //             * proceed towards ERROR
+    //             */
+    //            'call_back_url'          => '/gateway/callback/paypal',
+    //            'log.LogLevel'           => 'FINE'
+    //
+    //        ]
+    //    ],
     //-------------------------------
     // Tables names
     //--------------------------------
-    'table'    => 'gateway_transactions',
+    'table'        => 'gateways',
 ];

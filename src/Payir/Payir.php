@@ -1,8 +1,10 @@
 <?php
+
 namespace Larabookir\Gateway\Payir;
 
 use Illuminate\Support\Facades\Request;
 use Larabookir\Gateway\Enum;
+use Larabookir\Gateway\Models\Gateway;
 use Larabookir\Gateway\PortAbstract;
 use Larabookir\Gateway\PortInterface;
 
@@ -30,6 +32,13 @@ class Payir extends PortAbstract implements PortInterface
 
 
     protected $factorNumber;
+
+    protected $gateway;
+
+    public function __construct()
+    {
+        $this->gateway = Gateway::where('name')->first();
+    }
 
     /**
      * {@inheritdoc}
@@ -94,12 +103,13 @@ class Payir extends PortAbstract implements PortInterface
 
     /**
      * Gets callback url
+     *
      * @return string
      */
     function getCallback()
     {
         if (!$this->callbackUrl)
-            $this->callbackUrl = $this->config->get('gateway.payir.callback-url');
+            $this->callbackUrl = $this->gateway['callback_url'];
         return urlencode($this->makeCallback($this->callbackUrl, ['transaction_id' => $this->transactionId()]));
     }
 
@@ -114,7 +124,7 @@ class Payir extends PortAbstract implements PortInterface
     {
         $this->newTransaction();
         $fields = [
-            'api'      => $this->config->get('gateway.payir.api'),
+            'api'      => $this->gateway['api'],
             'amount'   => $this->amount,
             'redirect' => $this->getCallback(),
         ];
@@ -136,7 +146,7 @@ class Payir extends PortAbstract implements PortInterface
             return true;
         }
         $this->transactionFailed();
-        $this->newLog($response['errorCode'], PayirSendException::$errors[ $response['errorCode'] ]);
+        $this->newLog($response['errorCode'], PayirSendException::$errors[$response['errorCode']]);
         throw new PayirSendException($response['errorCode']);
     }
 
@@ -149,10 +159,10 @@ class Payir extends PortAbstract implements PortInterface
      */
     protected function userPayment()
     {
-        $status = Request::input('status');
-        $transId = Request::input('transId');
+        $status           = Request::input('status');
+        $transId          = Request::input('transId');
         $this->cardNumber = Request::input('cardNumber');
-        $message = Request::input('message');
+        $message          = Request::input('message');
         if (is_numeric($status) && $status > 0) {
             $this->trackingCode = $transId;
             return true;
@@ -172,10 +182,10 @@ class Payir extends PortAbstract implements PortInterface
     protected function verifyPayment()
     {
         $fields = [
-            'api'     => $this->config->get('gateway.payir.api'),
+            'api'     => $this->gateway['api'],
             'transId' => $this->refId(),
         ];
-        $ch = curl_init();
+        $ch     = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->serverVerifyUrl);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -190,7 +200,7 @@ class Payir extends PortAbstract implements PortInterface
         }
 
         $this->transactionFailed();
-        $this->newLog($response['errorCode'], PayirReceiveException::$errors[ $response['errorCode'] ]);
+        $this->newLog($response['errorCode'], PayirReceiveException::$errors[$response['errorCode']]);
         throw new PayirReceiveException($response['errorCode']);
     }
 }

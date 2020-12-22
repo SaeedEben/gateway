@@ -4,6 +4,7 @@ namespace Larabookir\Gateway\Saman;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Request;
+use Larabookir\Gateway\Models\Gateway;
 use SoapClient;
 use Larabookir\Gateway\PortAbstract;
 use Larabookir\Gateway\PortInterface;
@@ -27,6 +28,13 @@ class Saman extends PortAbstract implements PortInterface
     protected $serverVerifyUrl = "https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL";
 
     protected $gateUrl = "https://sep.shaparak.ir/Payment.aspx";
+
+    protected $gateway;
+
+    public function __construct()
+    {
+        $this->gateway = Gateway::where('name')->first();
+    }
 
     /**
      * {@inheritdoc}
@@ -55,7 +63,7 @@ class Saman extends PortAbstract implements PortInterface
      * @param Array $data an array of data
      *
      */
-    function setOptionalData (Array $data)
+    function setOptionalData(array $data)
     {
         $this->optional_data = $data;
     }
@@ -67,15 +75,15 @@ class Saman extends PortAbstract implements PortInterface
     public function redirect()
     {
         $main_data = [
-            'amount'        => $this->amount,
-            'merchant'      => $this->config->get('gateway.saman.merchant'),
-            'resNum'        => $this->transactionId(),
-            'callBackUrl'   => $this->getCallback()
+            'amount'      => $this->amount,
+            'merchant'    => $this->gateway['merchant_id'],
+            'resNum'      => $this->transactionId(),
+            'callBackUrl' => $this->getCallback(),
         ];
 
         $data = array_merge($main_data, $this->optional_data);
 
-        return \View::make('gateway::saman-redirector')->with($data)->with('gateUrl',$this->gateUrl);
+        return \View::make('gateway::saman-redirector')->with($data)->with('gateUrl', $this->gateUrl);
     }
 
     /**
@@ -93,6 +101,7 @@ class Saman extends PortAbstract implements PortInterface
 
     /**
      * Sets callback url
+     *
      * @param $url
      */
     function setCallback($url)
@@ -103,12 +112,13 @@ class Saman extends PortAbstract implements PortInterface
 
     /**
      * Gets callback url
+     *
      * @return string
      */
     function getCallback()
     {
         if (!$this->callbackUrl)
-            $this->callbackUrl = $this->config->get('gateway.saman.callback-url');
+            $this->callbackUrl = $this->gateway['callback_url'];
 
         $url = $this->makeCallback($this->callbackUrl, ['transaction_id' => $this->transactionId()]);
 
@@ -127,15 +137,15 @@ class Saman extends PortAbstract implements PortInterface
     {
         $this->trackingCode = Request::input('TRACENO');
         // $this->cardNumber = Request::input('SecurePan'); , will cause mysql error : Data too long for column 'card_number' !
-        $payRequestRes = Request::input('State');
+        $payRequestRes     = Request::input('State');
         $payRequestResCode = Request::input('Status');
 
         $this->refId = Request::input('RefNum');
         $this->getTable()->whereId($this->transactionId)->update([
-            'ref_id' => $this->refId,
+            'ref_id'        => $this->refId,
             'tracking_code' => $this->trackingCode,
             // 'card_number' => $this->cardNumber, will cause mysql error : Data too long for column 'card_number' !
-            'updated_at' => Carbon::now(),
+            'updated_at'    => Carbon::now(),
         ]);
 
         if ($payRequestRes == 'OK') {
@@ -158,14 +168,14 @@ class Saman extends PortAbstract implements PortInterface
      */
     protected function verifyPayment()
     {
-        $fields = array(
-            "merchantID" => $this->config->get('gateway.saman.merchant'),
-            "RefNum" => $this->refId,
-            "password" => $this->config->get('gateway.saman.password'),
-        );
+        $fields = [
+            "merchantID" => $this->gateway['merchant_id'],
+            "RefNum"     => $this->refId,
+            "password"   => $this->gateway['password'],
+        ];
 
         try {
-            $soap = new SoapClient($this->serverVerifyUrl);
+            $soap     = new SoapClient($this->serverVerifyUrl);
             $response = $soap->VerifyTransaction($fields["RefNum"], $fields["merchantID"]);
 
         } catch (\SoapFault $e) {
@@ -182,9 +192,9 @@ class Saman extends PortAbstract implements PortInterface
         }
 
         //Reverse Transaction
-        if($response>0){
+        if ($response > 0) {
             try {
-                $soap = new SoapClient($this->serverVerifyUrl);
+                $soap     = new SoapClient($this->serverVerifyUrl);
                 $response = $soap->ReverseTransaction($fields["RefNum"], $fields["merchantID"], $fields["password"], $response);
 
             } catch (\SoapFault $e) {
@@ -199,7 +209,6 @@ class Saman extends PortAbstract implements PortInterface
         $this->transactionFailed();
         $this->newLog($response, SamanException::$errors[$response]);
         throw new SamanException($response);
-
 
 
     }

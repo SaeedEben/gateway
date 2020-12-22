@@ -4,15 +4,16 @@ namespace Larabookir\Gateway;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
+use Larabookir\Gateway\Console\databaseSeed;
 
 class GatewayServiceProvider extends ServiceProvider
 {
-	/**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
-	protected $defer = false;
+    /**
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = false;
 
     /**
      * Actual provider
@@ -24,7 +25,8 @@ class GatewayServiceProvider extends ServiceProvider
     /**
      * Create a new service provider instance.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param \Illuminate\Contracts\Foundation\Application $app
+     *
      * @return void
      */
     public function __construct($app)
@@ -34,28 +36,33 @@ class GatewayServiceProvider extends ServiceProvider
 //        $this->provider = $this->getProvider();
     }
 
-	/**
-	 * Bootstrap the application services.
-	 *
-	 * @return void
-	 */
-	public function boot()
-	{
-        $this->loadRoutesFrom(__DIR__.'/routes/web.php');
+    /**
+     * Bootstrap the application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                databaseSeed::class,
+            ]);
+        }
 
-        $config = __DIR__ . '/../config/gateway.php';
+        $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
+
+        $config     = __DIR__ . '/../config/gateway.php';
         $migrations = __DIR__ . '/../migrations/';
-        $views = __DIR__ . '/../views/';
+        $views      = __DIR__ . '/../views/';
 
         //php artisan vendor:publish --provider=Larabookir\Gateway\GatewayServiceProvider --tag=config
         $this->publishes([
             $config => config_path('gateway.php'),
-        ], 'config')
-        ;
+        ], 'config');
 
         // php artisan vendor:publish --provider=Larabookir\Gateway\GatewayServiceProvider --tag=migrations
         $this->publishes([
-            $migrations => base_path('database/migrations')
+            $migrations => base_path('database/migrations'),
         ], 'migrations');
 
         $this->loadMigrationsFrom($migrations);
@@ -66,7 +73,7 @@ class GatewayServiceProvider extends ServiceProvider
         $this->publishes([
             $views => base_path('resources/views/vendor/gateway'),
         ], 'views');
-	}
+    }
 
     /**
      * Return ServiceProvider according to Laravel version
@@ -77,24 +84,25 @@ class GatewayServiceProvider extends ServiceProvider
     {
         if (version_compare(\Illuminate\Foundation\Application::VERSION, '5.0', '<')) {
             $provider = 'Larabookir\Gateway\GatewayServiceProviderLaravel4';
-        }elseif (version_compare(\Illuminate\Foundation\Application::VERSION, '5.0', '>=') && version_compare(\Illuminate\Foundation\Application::VERSION, '6.0', '<')) {
+        } else if (version_compare(\Illuminate\Foundation\Application::VERSION, '5.0', '>=') && version_compare(\Illuminate\Foundation\Application::VERSION, '6.0', '<')) {
             $provider = 'Larabookir\Gateway\GatewayServiceProviderLaravel5';
-        }else {
+        } else {
             $provider = 'Larabookir\Gateway\GatewayServiceProviderLaravel6';
         }
 
         return new $provider($this->app);
     }
 
-	/**
-	 * Register the application services.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
+    /**
+     * Register the application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+
         $this->app->singleton('gateway', function () {
             return new GatewayResolver();
         });
-	}
+    }
 }

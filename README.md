@@ -104,7 +104,9 @@ php artisan vendor:publish
 php artisan migrate
 
 ```
+** و همینطور بعد از پر کردن اطلاعات config/gateway **
 
+php artisan database:seed
 
 <div dir="rtl"> 
  
